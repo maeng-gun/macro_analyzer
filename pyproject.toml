@@ -1,0 +1,11 @@
+[project]
+name = "macro-analyzer"
+version = "0.1.0"
+description = "Macro-Portfolio Cross-Analyzer"
+authors = [{name = "maeng-gun", email = "sarangia85@gmail.com"}]
+requires-python = ">=3.10"
+dependencies = [
+    "pdfplumber>=0.11.4",
+    "supabase>=2.10.0",
+    "python-dotenv>=1.0.1"
+]
