@@ -2,3 +2,6 @@
 scratch/
 __pycache__/
 .venv/
+auth_state.json
+browser_session/
+*.png

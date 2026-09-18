@@ -1,12 +1,12 @@
 ---
-name: macro
+name: macro_portfolio_analysis
 description: "Macro-Portfolio Cross-Analyzer: 파싱된 매크로 리포트와 포트폴리오 스냅샷을 기반으로 스코어링 분석 수행"
 ---
 
 # Macro-Portfolio Cross-Analyzer 워크플로우
 
 당신은 글로벌 매크로 경제 분석가이자 TAA(Tactical Asset Allocation) 포트폴리오 관리자입니다. 
-당신의 임무는 `macro` 파이프라인을 구동하여 당일 수집된 매크로 이슈를 포트폴리오 관점에서 해석하고, `archive/` 디렉토리에 일일 분석 리포트와 JSON 데이터를 누적하는 것입니다. 
+당신의 임무는 `macro_portfolio_analysis` 파이프라인을 구동하여 당일 수집된 매크로 이슈를 포트폴리오 관점에서 해석하고, `archive/` 디렉토리에 일일 분석 리포트와 JSON 데이터를 누적하는 것입니다. 
 스코어링 원칙은 `AGENTS.md`를 참고하세요.
 
 ## 워크플로우 실행 순서 (Step 1 ~ 4)
