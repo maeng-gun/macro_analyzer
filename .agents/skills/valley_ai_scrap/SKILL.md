@@ -7,7 +7,7 @@ description: >-
 
 # Valley AI 매크로 뉴스 스크랩 스킬 (valley_ai_scrap)
 
-이 스킬은 사용자의 지시(자연어 날짜)를 해석하여, 결정론적인 파이썬 스크립트(`scripts/scrap_valley_news.py`)를 통해 크롤링 파이프라인을 구동하는 역할을 수행합니다.
+이 스킬은 사용자의 지시(자연어 날짜)를 해석하여, 결정론적인 파이썬 스크립트(`.agents/skills/valley_ai_scrap/scripts/scrap_valley_news.py`)를 통해 크롤링 파이프라인을 구동하는 역할을 수행합니다.
 
 ## 작동 규칙 (규범적 지시사항)
 
@@ -17,7 +17,7 @@ description: >-
 
 2. **파이썬 스크립트 실행**:
    - 도출된 날짜를 활용하여 아래의 터미널 명령어를 실행하세요.
-   - 실행 명령어: `python scripts/scrap_valley_news.py --start <YYYY-MM-DD> --end <YYYY-MM-DD>`
+   - 실행 명령어: `python .agents/skills/valley_ai_scrap/scripts/scrap_valley_news.py --start <YYYY-MM-DD> --end <YYYY-MM-DD>`
    - 작업 디렉토리(CWD)는 프로젝트의 루트 폴더여야 합니다.
 
 3. **결과 보고 및 모듈화 종료 (Handoff)**:

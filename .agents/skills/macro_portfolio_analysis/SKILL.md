@@ -15,8 +15,8 @@ description: "Macro-Portfolio Cross-Analyzer: 파싱된 매크로 리포트와 �
 
 ### Step 1: 데이터 Ingestion 스크립트 실행
 1. `run_command` 도구를 사용하여 파이썬 스크립트를 차례로 실행하세요.
-   * `uv run src/scripts/parse_all_inputs.py` (또는 `python src/scripts/parse_all_inputs.py`)
-   * `uv run src/scripts/fetch_portfolio.py` (또는 `python src/scripts/fetch_portfolio.py`)
+   * `python .agents/skills/macro_portfolio_analysis/scripts/parse_all_inputs.py`
+   * `python .agents/skills/macro_portfolio_analysis/scripts/fetch_portfolio.py`
 2. 정상 실행 후, `scratch/parsed_report_YYYYMMDD.md` 와 `scratch/portfolio_snapshot_YYYYMMDD.json` 파일의 내용을 읽어 컨텍스트를 확보하세요.
    * `portfolio_snapshot`에는 `asset_ratio`(자산군별 비중)와 `holdings`(개별 ETF 보유 현황: 상품명, 평가금액, 평가수익률 등)가 포함되어 있습니다. `holdings`의 상품들을 `세부자산군2` 기준으로 맵핑해두어 Part D/E 추론에 활용하세요.
 
