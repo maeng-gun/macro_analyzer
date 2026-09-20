@@ -1,5 +1,5 @@
 ---
-name: valley_ai_scrap
+name: valley-ai-scrap
 description: >-
   Valley AI 사이트의 '월가 소식' 및 '오늘의 인사이트' 게시판에서 
   특정 날짜 범위의 게시물을 추출하여 마크다운 파일로 저장하는 스킬입니다.
@@ -16,8 +16,10 @@ description: >-
    - 예: 사용자가 "오늘"을 지시하면 start_date와 end_date는 모두 오늘 날짜입니다.
 
 2. **파이썬 스크립트 실행**:
-   - 도출된 날짜를 활용하여 아래의 터미널 명령어를 실행하세요.
-   - 실행 명령어: `python .agents/skills/valley_ai_scrap/scripts/scrap_valley_news.py --start <YYYY-MM-DD> --end <YYYY-MM-DD>`
+   - 프로젝트 루트의 가상환경(`.venv`) 인터프리터를 우선적으로 사용하여 스크립트를 구동하세요.
+     * Windows: `.\.venv\Scripts\python.exe .agents/skills/valley_ai_scrap/scripts/scrap_valley_news.py --start <YYYY-MM-DD> --end <YYYY-MM-DD>`
+     * Linux/macOS: `./.venv/bin/python .agents/skills/valley_ai_scrap/scripts/scrap_valley_news.py --start <YYYY-MM-DD> --end <YYYY-MM-DD>`
+     * 만약 `.venv`가 없다면 현재 활성화된 가상환경의 `python` 명령어로 실행합니다.
    - 작업 디렉토리(CWD)는 프로젝트의 루트 폴더여야 합니다.
 
 3. **결과 보고 및 모듈화 종료 (Handoff)**:

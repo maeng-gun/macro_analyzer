@@ -1,5 +1,6 @@
 .env
 scratch/
+archive/
 __pycache__/
 .venv/
 auth_state.json

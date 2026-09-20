@@ -1,0 +1,23 @@
+{
+  "description": "사용자의 18개 세부자산군 체계 및 매핑 메타데이터",
+  "asset_classes": [
+    {"asset_group": "대체자산", "subgroup": "실물자산", "asset_class_2": "귀금속", "description": "금, 은 등 귀금속 실물 및 관련 ETF"},
+    {"asset_group": "대체자산", "subgroup": "실물자산", "asset_class_2": "원자재", "description": "원유, 농산물, 산업금속 등 원자재 ETF"},
+    {"asset_group": "대체자산", "subgroup": "인컴자산", "asset_class_2": "국내", "description": "국내 리츠, 인프라 펀드 등"},
+    {"asset_group": "대체자산", "subgroup": "인컴자산", "asset_class_2": "해외", "description": "해외 리츠, 인프라, 배당 대체자산 등"},
+    {"asset_group": "주식", "subgroup": "국내", "asset_class_2": "인덱스", "description": "코스피, 코스닥 대표 지수 ETF"},
+    {"asset_group": "주식", "subgroup": "국내", "asset_class_2": "종목", "description": "국내 개별 종목 주식"},
+    {"asset_group": "주식", "subgroup": "국내", "asset_class_2": "테마", "description": "국내 섹터 및 특정 테마 ETF (2차전지, 반도체 등)"},
+    {"asset_group": "주식", "subgroup": "선진국", "asset_class_2": "인덱스", "description": "S&P500, 나스닥100 등 미국/선진국 대표 지수 ETF"},
+    {"asset_group": "주식", "subgroup": "선진국", "asset_class_2": "종목", "description": "미국 및 선진국 개별 주식"},
+    {"asset_group": "주식", "subgroup": "선진국", "asset_class_2": "테마", "description": "미국/선진국 빅테크, AI, 바이오 등 테마 ETF"},
+    {"asset_group": "주식", "subgroup": "신흥국", "asset_class_2": "인덱스", "description": "인도, 베트남, 대만 등 신흥국 지수 ETF"},
+    {"asset_group": "주식", "subgroup": "신흥국", "asset_class_2": "테마", "description": "신흥국 섹터 및 테마 ETF"},
+    {"asset_group": "채권", "subgroup": "만기보유", "asset_class_2": "안전자산", "description": "국고채, 미국 단기채 등 만기보유 안전채권"},
+    {"asset_group": "채권", "subgroup": "만기보유", "asset_class_2": "크레딧", "description": "우량 회사채, 금융채 등 만기보유 크레딧물"},
+    {"asset_group": "채권", "subgroup": "시장형", "asset_class_2": "국내", "description": "국내 장기채, 시장형 채권 ETF"},
+    {"asset_group": "현금성", "subgroup": "금융상품", "asset_class_2": "단기ETF", "description": "KOFR, CD금리, 파킹형 초단기 ETF"},
+    {"asset_group": "현금성", "subgroup": "금융상품", "asset_class_2": "원화상품", "description": "예적금, MMF, CMA 등 원화 금융상품"},
+    {"asset_group": "현금성", "subgroup": "현금", "asset_class_2": "원화", "description": "원화 예수금 및 현금 잔고"}
+  ]
+}
