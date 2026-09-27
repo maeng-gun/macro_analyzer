@@ -34,7 +34,7 @@ def upsert_rows(client, url, table_name, on_conflict_cols, rows, headers, chunk_
     logger.info(f"[{table_name}] Successfully upserted {len(rows)} rows.")
     return True
 
-def load_metrics_to_supabase(metrics_path, fallback_dump_dir="scratch"):
+def load_metrics_to_supabase(metrics_path, fallback_dump_dir="scratch", clean_date=False):
     load_dotenv()
     url = os.getenv("SUPABASE_URL")
     key = os.getenv("SUPABASE_SERVICE_ROLE_KEY") or os.getenv("SUPABASE_ANON_KEY") or os.getenv("SUPABASE_KEY")
@@ -70,9 +70,10 @@ def load_metrics_to_supabase(metrics_path, fallback_dump_dir="scratch"):
             "date": a["date"],
             "asset_class": a["asset_class"],
             "horizon": a["horizon"],
-            "asset_macro_score": a["asset_macro_score"],
+            "asset_macro_score": a.get("asset_macro_score"), # None for unobserved assets
             "weight": a["weight"],
             "total_wi": a["total_wi"],
+            "shock_count": a.get("shock_count", 0),
             "sma_5": a.get("sma_5"),
             "sma_20": a.get("sma_20"),
             "slope_20": a.get("slope_20")
@@ -97,6 +98,13 @@ def load_metrics_to_supabase(metrics_path, fallback_dump_dir="scratch"):
     success = True
     try:
         with httpx.Client() as client:
+            if clean_date:
+                logger.info(f"Cleaning existing records for date {date_str} from Supabase...")
+                client.delete(f"{url}/rest/v1/macro_topic_shocks?date=eq.{date_str}", headers=headers)
+                client.delete(f"{url}/rest/v1/macro_daily_asset_scores?date=eq.{date_str}", headers=headers)
+                client.delete(f"{url}/rest/v1/macro_daily_portfolio_scores?date=eq.{date_str}", headers=headers)
+                logger.info(f"Successfully cleaned existing records for date {date_str}.")
+
             ok1 = upsert_rows(client, url, "macro_topic_shocks", "date,topic_id,asset_class,horizon", topic_shocks_rows, headers)
             ok2 = upsert_rows(client, url, "macro_daily_asset_scores", "date,asset_class,horizon", asset_scores_rows, headers)
             ok3 = upsert_rows(client, url, "macro_daily_portfolio_scores", "date,horizon", portfolio_scores_rows, headers)
@@ -122,6 +130,7 @@ def main():
     parser = argparse.ArgumentParser(description="Load quant metrics to Supabase time-series tables")
     parser.add_argument("--metrics", help="Path to calculated_metrics_YYYYMMDD.json")
     parser.add_argument("--date", help="Date YYYYMMDD or YYYY-MM-DD")
+    parser.add_argument("--clean", action="store_true", help="Clean existing records for target date before loading")
     args = parser.parse_args()
 
     date_compact = ""
@@ -137,8 +146,8 @@ def main():
         date_compact = datetime.now().strftime("%Y%m%d")
 
     metrics_path = args.metrics or f"scratch/calculated_metrics_{date_compact}.json"
-    logger.info(f"Loading metrics from {metrics_path} to Supabase...")
-    ok = load_metrics_to_supabase(metrics_path)
+    logger.info(f"Loading metrics from {metrics_path} to Supabase (clean={args.clean})...")
+    ok = load_metrics_to_supabase(metrics_path, clean_date=args.clean)
     if ok:
         print("[Supabase] Data ingestion completed successfully.")
     else:

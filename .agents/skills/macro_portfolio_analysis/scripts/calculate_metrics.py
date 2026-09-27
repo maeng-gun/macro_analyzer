@@ -4,6 +4,17 @@ import argparse
 from collections import defaultdict
 from datetime import datetime
 
+MACRO_ASSET_CLASSES = [
+    "귀금속",
+    "원자재",
+    "인컴자산",
+    "국내주식",
+    "해외주식",
+    "국내채권",
+    "해외채권",
+    "만기보유채권 및 현금성"
+]
+
 def load_json(path):
     if not os.path.exists(path):
         raise FileNotFoundError(f"File not found: {path}")
@@ -19,20 +30,26 @@ def calculate_quant_metrics(shocks_payload, portfolio_snapshot):
     date_str = shocks_payload.get("date", datetime.now().strftime("%Y-%m-%d"))
     topics = shocks_payload.get("topics", [])
 
-    # 1. Extract asset weights from portfolio_snapshot
-    asset_weights = {}
+    # 1. Extract 8 macro asset class weights from portfolio_snapshot
+    asset_weights = {c: 0.0 for c in MACRO_ASSET_CLASSES}
     if isinstance(portfolio_snapshot, dict):
-        asset_ratios = portfolio_snapshot.get("asset_ratio", [])
-        for row in asset_ratios:
-            c2 = row.get("세부자산군2")
-            w = row.get("비중", 0.0)
-            if c2:
-                asset_weights[c2] = float(w)
+        macro_ratios = portfolio_snapshot.get("macro_asset_ratio", [])
+        if macro_ratios:
+            for row in macro_ratios:
+                c = row.get("macro_asset_class")
+                w = row.get("비중", 0.0)
+                if c:
+                    asset_weights[c] = float(w)
+        else:
+            # Fallback to asset_ratio if macro_asset_ratio not present
+            for row in portfolio_snapshot.get("asset_ratio", []):
+                c = row.get("세부자산군2")
+                w = row.get("비중", 0.0)
+                if c in asset_weights:
+                    asset_weights[c] += float(w)
 
     # 2. Process all topic shocks
-    # Flatten shocks and compute individual Topic_Shock
     flattened_shocks = []
-    # shocks_by_asset_horizon: (asset_class, horizon) -> list of shock dicts
     shocks_by_asset_horizon = defaultdict(list)
 
     for topic in topics:
@@ -75,17 +92,18 @@ def calculate_quant_metrics(shocks_payload, portfolio_snapshot):
             if asset_class:
                 shocks_by_asset_horizon[(asset_class, horizon)].append(shock_record)
 
-    # 3. Calculate Asset Macro Scores per horizon
-    # Asset_Macro_Score(H) = Sum(Topic_Shock) / Sum(Signal)
-    # Include all asset classes that appeared in shocks, plus those in portfolio
-    all_asset_classes = set(asset_weights.keys()) | {k[0] for k in shocks_by_asset_horizon.keys()}
+    # 3. Calculate Macro Asset Scores per horizon
+    all_target_assets = list(MACRO_ASSET_CLASSES)
+    # Include any shock asset classes that might not be in standard 8
+    for (a, _) in shocks_by_asset_horizon.keys():
+        if a and a not in all_target_assets:
+            all_target_assets.append(a)
 
     asset_score_records = []
-    # portfolio_wi_sums: horizon -> sum of total_wi
     portfolio_wi_sums = defaultdict(float)
 
     for horizon in [1, 2, 3]:
-        for asset in sorted(all_asset_classes):
+        for asset in all_target_assets:
             shock_list = shocks_by_asset_horizon.get((asset, horizon), [])
             weight = asset_weights.get(asset, 0.0)
 
@@ -95,39 +113,33 @@ def calculate_quant_metrics(shocks_payload, portfolio_snapshot):
 
                 if sum_signals > 0:
                     raw_score = sum_shocks / sum_signals
-                    # Clip to [-1.0, 1.0]
                     asset_score = max(-1.0, min(1.0, round(raw_score, 3)))
                 else:
                     asset_score = 0.0
 
-                # Check uncertainty (conflicting directions)
                 directions = {s["direction"] for s in shock_list if s["direction"] != 0}
                 high_uncertainty = len(directions) > 1
+                total_wi = round(asset_score * weight, 3)
             else:
-                asset_score = 0.0
+                asset_score = None
                 high_uncertainty = False
+                total_wi = 0.0
 
-            # Total_WI = Asset_Macro_Score * Weight(%)
-            total_wi = round(asset_score * weight, 3)
-
-            # Accumulate for portfolio score only for non-zero scores or portfolio assets
             portfolio_wi_sums[horizon] += total_wi
 
-            # We record in asset_scores if there were shocks OR it has weight in portfolio
-            if shock_list or weight > 0:
-                asset_score_records.append({
-                    "date": date_str,
-                    "asset_class": asset,
-                    "horizon": horizon,
-                    "asset_macro_score": asset_score,
-                    "weight": round(weight, 2),
-                    "total_wi": total_wi,
-                    "shock_count": len(shock_list),
-                    "high_uncertainty": high_uncertainty,
-                    "sma_5": None,
-                    "sma_20": None,
-                    "slope_20": None
-                })
+            asset_score_records.append({
+                "date": date_str,
+                "asset_class": asset,
+                "horizon": horizon,
+                "asset_macro_score": asset_score,
+                "weight": round(weight, 2),
+                "total_wi": total_wi,
+                "shock_count": len(shock_list),
+                "high_uncertainty": high_uncertainty,
+                "sma_5": None,
+                "sma_20": None,
+                "slope_20": None
+            })
 
     # 4. Calculate Portfolio Macro Scores per horizon
     portfolio_score_records = []
@@ -142,7 +154,7 @@ def calculate_quant_metrics(shocks_payload, portfolio_snapshot):
     # 5. Ranked assets per horizon (by absolute Total_WI descending)
     ranked_assets = {}
     for h in [1, 2, 3]:
-        h_records = [r for r in asset_score_records if r["horizon"] == h and (abs(r["total_wi"]) > 0 or r["shock_count"] > 0)]
+        h_records = [r for r in asset_score_records if r["horizon"] == h]
         h_records.sort(key=lambda x: abs(x["total_wi"]), reverse=True)
         ranked_assets[str(h)] = h_records
 
@@ -156,7 +168,7 @@ def calculate_quant_metrics(shocks_payload, portfolio_snapshot):
     return output
 
 def main():
-    parser = argparse.ArgumentParser(description="Deterministic Macro-Portfolio Quant Metrics Engine")
+    parser = argparse.ArgumentParser(description="Deterministic Macro-Portfolio Quant Metrics Engine (8 Macro Asset Classes)")
     parser.add_argument("--shocks", help="Path to extracted_shocks_YYYYMMDD.json")
     parser.add_argument("--portfolio", help="Path to portfolio_snapshot_YYYYMMDD.json")
     parser.add_argument("--date", help="Target date YYYYMMDD or YYYY-MM-DD")
@@ -167,7 +179,6 @@ def main():
     if args.date:
         date_compact = args.date.replace("-", "")
     else:
-        # Check from shocks path if provided
         if args.shocks:
             base = os.path.basename(args.shocks)
             import re
@@ -187,7 +198,7 @@ def main():
     print(f"[Quant Engine] Loading portfolio snapshot: {portfolio_path}")
     portfolio_snapshot = load_json(portfolio_path)
 
-    print("[Quant Engine] Computing metrics...")
+    print("[Quant Engine] Computing metrics for 8 Macro Asset Classes...")
     metrics = calculate_quant_metrics(shocks_payload, portfolio_snapshot)
 
     save_json(metrics, out_path)

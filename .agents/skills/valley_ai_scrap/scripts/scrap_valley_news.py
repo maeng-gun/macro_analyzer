@@ -34,17 +34,25 @@ def parse_args():
 def get_authenticated_context(p):
     """
     auth_state.json을 로드하여 완전히 인증된 브라우저 컨텍스트를 반환합니다.
-    만약 세션 파일이 없으면 1회 로그인하여 생성합니다.
+    만약 세션 파일이 없거나 만료되었으면 1회 로그인하여 갱신합니다.
     """
     browser = p.chromium.launch(headless=True)
     if os.path.exists(AUTH_FILE):
         try:
             context = browser.new_context(storage_state=AUTH_FILE)
-            return browser, context
+            test_page = context.new_page()
+            test_page.goto(WSJ_URL, wait_until="domcontentloaded", timeout=15000)
+            test_page.wait_for_timeout(1500)
+            if "/login" not in test_page.url:
+                test_page.close()
+                return browser, context
+            print("[Auth] Existing session expired (redirected to login), recreating...")
+            test_page.close()
+            context.close()
         except Exception as e:
-            print("[Auth] Existing session file corrupted, recreating...")
+            print(f"[Auth] Existing session file corrupted or invalid ({e}), recreating...")
 
-    # auth_state.json이 없거나 깨졌을 때 재로그인
+    # auth_state.json이 없거나 깨졌거나 만료되었을 때 재로그인
     context = browser.new_context()
     page = context.new_page()
     print("[Auth] Logging in to create session...")
