@@ -1,4 +1,5 @@
 .env
+input_staging/
 scratch/
 archive/
 __pycache__/
