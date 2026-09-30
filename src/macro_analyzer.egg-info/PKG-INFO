@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: macro-analyzer
+Version: 0.1.0
+Summary: Macro-Portfolio Cross-Analyzer
+Author-email: maeng-gun <sarangia85@gmail.com>
+Requires-Python: >=3.10
+Requires-Dist: pdfplumber>=0.11.4
+Requires-Dist: supabase>=2.10.0
+Requires-Dist: python-dotenv>=1.0.1
+Requires-Dist: playwright>=1.48.0
+Requires-Dist: httpx>=0.27.0
+Requires-Dist: notion-client>=3.1.0
+Requires-Dist: markdown-it-py>=3.0.0

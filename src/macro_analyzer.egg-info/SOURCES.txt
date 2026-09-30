@@ -1,0 +1,6 @@
+pyproject.toml
+src/macro_analyzer.egg-info/PKG-INFO
+src/macro_analyzer.egg-info/SOURCES.txt
+src/macro_analyzer.egg-info/dependency_links.txt
+src/macro_analyzer.egg-info/requires.txt
+src/macro_analyzer.egg-info/top_level.txt
